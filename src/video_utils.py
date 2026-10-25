@@ -153,3 +153,37 @@ def get_frame_data(video_path):
   pose_detector.close()
   face_detector.close()
   return frames
+
+
+class FrameProcessor:
+  # three detectors that live as long as the object; call process() frame by frame
+  def __init__(self):
+    self.hand_detector = vision.HandLandmarker.create_from_options(
+      vision.HandLandmarkerOptions(
+        base_options=mp_python.BaseOptions(model_asset_path="models/hand_landmarker.task"),
+        running_mode=vision.RunningMode.VIDEO, num_hands=2))
+    self.pose_detector = vision.PoseLandmarker.create_from_options(
+      vision.PoseLandmarkerOptions(
+        base_options=mp_python.BaseOptions(model_asset_path="models/pose_landmarker_lite.task"),
+        running_mode=vision.RunningMode.VIDEO, num_poses=1))
+    self.face_detector = vision.FaceLandmarker.create_from_options(
+      vision.FaceLandmarkerOptions(
+        base_options=mp_python.BaseOptions(model_asset_path="models/face_landmarker.task"),
+        running_mode=vision.RunningMode.VIDEO,
+        output_face_blendshapes=True, num_faces=1))
+
+  def process(self, frame_bgr, timestamp_ms):
+    # one BGR frame -> (slots, pose, face), same as one element of get_frame_data
+    rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+    image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+    hand_result = self.hand_detector.detect_for_video(image, timestamp_ms)
+    pose_result = self.pose_detector.detect_for_video(image, timestamp_ms)
+    face_result = self.face_detector.detect_for_video(image, timestamp_ms)
+    pose = pose_result.pose_landmarks[0] if pose_result.pose_landmarks else None
+    face = [c.score for c in face_result.face_blendshapes[0]] if face_result.face_blendshapes else None
+    return hands_to_slots(hand_result), pose, face
+
+  def close(self):
+    self.hand_detector.close()
+    self.pose_detector.close()
+    self.face_detector.close()

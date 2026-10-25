@@ -86,3 +86,10 @@ def fill_gaps(matrix, max_gap=3):
           matrix[a + k, block] = (1 - t) * matrix[a, block] + t * matrix[b, block]
           matrix[a + k, flag] = 1
   return matrix
+
+# column indices inside one frame vector (191 numbers)
+COLS = {
+  "hands": np.r_[0:130, 136:138],  # both hands (shape + position) and their visibility flags
+  "body": np.r_[130:136],          # nose and elbows
+  "face": np.r_[138:191],          # 52 blendshapes + "face found" flag
+}
