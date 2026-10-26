@@ -5,7 +5,8 @@ from features import video_to_matrix, fill_gaps, resample
 from demo import load_model, predict
 
 video = sys.argv[1]
-model, checkpoint = load_model()
+# model, checkpoint = load_model()
+model, checkpoint = load_model(sys.argv[2] if len(sys.argv) > 2 else "models/sign_gru.pt")
 
 segments = find_segments(get_wrist_heights(video))              # where the signs are
 matrix = fill_gaps(video_to_matrix(get_frame_data(video)))      # (T, 191)

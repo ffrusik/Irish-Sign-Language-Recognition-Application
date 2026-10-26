@@ -92,4 +92,7 @@ COLS = {
   "hands": np.r_[0:130, 136:138],  # both hands (shape + position) and their visibility flags
   "body": np.r_[130:136],          # nose and elbows
   "face": np.r_[138:191],          # 52 blendshapes + "face found" flag
+  "brows": np.r_[139:144],         # 4 blendshapes for the eyebrows
+  "eyes": np.r_[147:161],          # 8 blendshapes for
+  "mouth_jaw": np.r_[161:188],      # 41 blendshapes for the mouth and jaw
 }

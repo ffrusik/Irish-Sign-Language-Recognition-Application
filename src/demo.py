@@ -14,8 +14,12 @@ def load_model(path="models/sign_gru.pt"):
   return model, checkpoint
 
 def predict(model, checkpoint, sequence):
+  if "cols" in checkpoint:
+    sequence = sequence[:, checkpoint["cols"]]   # keep only the columns the model was trained on
+
   # sequence: numpy array (30, 191) -> probabilities for every sign
-  x = (sequence - checkpoint["mean"].numpy()) / checkpoint["std"].numpy()
+  # x = (sequence - checkpoint["mean"].numpy()) / checkpoint["std"].numpy()
+  x = np.clip((sequence - checkpoint["mean"].numpy()) / checkpoint["std"].numpy(), -5, 5)
   x = torch.tensor(x, dtype=torch.float32).unsqueeze(0)  # (1, 30, 191)
   with torch.no_grad():
     probs = torch.softmax(model(x), dim=1)[0]
