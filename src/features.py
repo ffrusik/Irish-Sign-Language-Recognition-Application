@@ -41,18 +41,6 @@ def frame_to_vector(slots, pose, face, body):
   face_part = face_to_vector(face)
   return np.concatenate([right, left, body_part, flags, face_part])
 
-def video_to_matrix(frames):
-  # frames: list of (slots, pose, face) for the whole video
-  # returns an array (number of frames, 191)
-  rows = []
-  body = None  # last known body frame
-  for slots, pose, face in frames:
-    new_body = body_frame(pose)
-    if new_body is not None:
-      body = new_body  # if the body is lost for a frame, keep using the last known one
-    rows.append(frame_to_vector(slots, pose, face, body))
-  return np.array(rows)
-
 def body_frame(pose):
   # pose: list of 33 landmarks or None
   # returns (center, scale): midpoint between shoulders and shoulder width, or None
@@ -65,8 +53,20 @@ def body_frame(pose):
     return None
   return center, scale
 
+def video_to_matrix(frames):
+  # frames: list of (slots, pose, face) for the whole video
+  # returns an array (number of frames, 191)
+  rows = []
+  body = None  # last known body frame
+  for slots, pose, face in frames:
+    new_body = body_frame(pose)
+    if new_body is not None:
+      body = new_body  # if the body is lost for a frame, keep using the last known one
+    rows.append(frame_to_vector(slots, pose, face, body))
+  return np.array(rows)
+
 def resample(matrix, length=30):
-  # matrix: (T, 138) -> (length, 138)
+  # matrix: (T, 191) -> (length, 191)
   # pick `length` frames evenly spread over the repetition
   indices = np.linspace(0, len(matrix) - 1, length).round().astype(int)
   return matrix[indices]
@@ -92,7 +92,7 @@ COLS = {
   "hands": np.r_[0:130, 136:138],  # both hands (shape + position) and their visibility flags
   "body": np.r_[130:136],          # nose and elbows
   "face": np.r_[138:191],          # 52 blendshapes + "face found" flag
-  "brows": np.r_[139:144],         # 4 blendshapes for the eyebrows
-  "eyes": np.r_[147:161],          # 8 blendshapes for
-  "mouth_jaw": np.r_[161:188],      # 41 blendshapes for the mouth and jaw
+  "brows": np.r_[139:144],          # 5 blendshapes: browDown x2, browInnerUp, browOuterUp x2
+  "eyes": np.r_[147:161],           # 14 blendshapes: blink, look, squint, wide
+  "mouth_jaw": np.r_[161:188],      # 27 blendshapes: 4 jaw + 23 mouth
 }
