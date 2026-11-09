@@ -5,6 +5,7 @@ A real-time Irish Sign Language (ISL) recognition application built with Python,
 This is my final-year project for the BSc in Computer Science at ATU Donegal. It is a work in progress: the current vocabulary is three signs (HELLO, HOW ARE YOU, SORRY), and the aim is to extend it with more signs and more signers.
 
 <img width="426" height="240" alt="live_demo" src="https://github.com/user-attachments/assets/fa5a1b76-686c-4ffc-a398-58b34281f07a" />
+
 ## How it works
 
 ```mermaid
